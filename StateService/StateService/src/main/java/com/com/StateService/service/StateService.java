@@ -1,5 +1,6 @@
 package com.com.StateService.service;
 
+import com.com.StateService.dto.DistrictDto;
 import com.com.StateService.dto.ResponseDto;
 import com.com.StateService.model.District;
 import com.com.StateService.model.State;
@@ -7,6 +8,7 @@ import com.com.StateService.repository.StateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
@@ -20,6 +22,10 @@ public class StateService {
 
     @Autowired
     private WebClient webClient;
+
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     public List<State> saveState(List<State> state){
         return stateRepository.saveAll(state);
@@ -37,11 +43,12 @@ public class StateService {
     }
 
     public ResponseDto getStateDistrict(String stateCode){
-        List district = webClient.get()
-                .uri("http://localhost:9098/districts/state/" + stateCode)
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<District>>() {}).block();
+//        List district = webClient.get()
+//                .uri("http://localhost:9098/districts/state/" + stateCode)
+//                .retrieve()
+//                .bodyToMono(new ParameterizedTypeReference<List<District>>() {}).block();
 
+        List<DistrictDto> district = restTemplate.getForObject("http://localhost:9098/districts/state/"+stateCode,List.class);
         State state = getStateByStateCode(stateCode);
         ResponseDto responseDto = new ResponseDto(state.getStatename(), district);
         return responseDto;
